@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>層次晚餐決定器</title>
+    <title>全球美食決定器 - 實戰版</title>
     <style>
         body {
             background-color: #A2D2FF;
@@ -27,12 +27,7 @@
             max-width: 500px;
         }
 
-        .breadcrumb {
-            font-size: 0.9rem;
-            color: #888;
-            margin-bottom: 15px;
-        }
-
+        .breadcrumb { font-size: 0.9rem; color: #888; margin-bottom: 15px; }
         h1 { color: #555; font-size: 1.8rem; margin-bottom: 20px; }
 
         .button-grid {
@@ -57,24 +52,34 @@
 
         button:active { transform: translateY(3px); box-shadow: 0 0 #ff9bbd; }
 
-        .random-btn {
-            grid-column: span 2;
-            background-color: #BDE0FE;
-            box-shadow: 0 4px #8ecae6;
-        }
-
-        .back-btn {
-            background-color: #eee;
-            box-shadow: 0 4px #ccc;
-            margin-top: 20px;
-            grid-column: span 2;
+        .random-btn { background-color: #BDE0FE; box-shadow: 0 4px #8ecae6; grid-column: span 2; }
+        .back-btn { background-color: #eee; box-shadow: 0 4px #ccc; margin-top: 20px; grid-column: span 2; }
+        
+        /* Google Maps 按鈕樣式 */
+        .maps-btn {
+            background-color: #4285F4;
+            color: white;
+            box-shadow: 0 4px #3367D6;
+            margin-top: 15px;
+            text-decoration: none;
+            display: none; /* 初始隱藏 */
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
         }
 
         #final-result {
-            font-size: 2.5rem;
+            font-size: 3rem;
             color: #FF6B6B;
             margin: 20px 0;
             display: none;
+            animation: pop 0.3s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -86,6 +91,8 @@
         
         <div id="final-result"></div>
 
+        <a id="maps-link" class="maps-btn" target="_blank">📍 睇吓附近邊度有得食</a>
+
         <div id="options-container" class="button-grid">
             </div>
 
@@ -93,21 +100,38 @@
     </div>
 
     <script>
-        // 1. 這裡定義所有的資料 (數據庫)
         const menuData = {
             "亞洲": {
-                "日本": ["壽司 🍣", "拉麵 🍜", "天婦羅 🍤"],
-                "韓國": ["泡菜鍋 🍲", "韓式炸雞 🍗", "石鍋拌飯 🥘"],
-                "中港": ["叉燒飯 🍛", "雲吞麵 🍜", "點心 🥟"]
+                "中港": ["叉燒飯 🍛", "雲吞麵 🍜", "點心 🥟", "北京填鴨 🦆", "麻婆豆腐 🥘"],
+                "日本": ["壽司 🍣", "拉麵 🍜", "天婦羅 🍤", "大阪燒 🍳", "和牛燒肉 🥩"],
+                "韓國": ["泡菜鍋 🍲", "韓式炸雞 🍗", "石鍋拌飯 🥘", "部隊鍋 🥘"],
+                "星馬泰": ["冬蔭功 🥣", "泰式炒金邊粉 🍜", "海南雞飯 🐔", "肉骨茶 🍵", "沙嗲 🍢"],
+                "越南": ["越南河粉 🍜", "越式法包 🥖"]
             },
             "歐洲": {
-                "意大利": ["薄餅 🍕", "意粉 🍝"],
-                "法國": ["法式長棍 🥖", "焗蝸牛 🐌"],
-                "英國": ["炸魚薯條 🐟🍟"]
+                "意大利": ["薄餅 🍕", "卡邦尼意粉 🍝", "千層麵 🥘", "意大利飯 🍚"],
+                "法國": ["焗鵝肝 🦆", "焗蝸牛 🐌", "法式洋蔥湯 🥣"],
+                "西班牙": ["西班牙海鮮飯 🥘", "塔帕斯 Tapas 🥖", "西班牙油條 🥨"],
+                "英國": ["炸魚薯條 🐟🍟", "英式早餐 🍳", "牧羊人派 🥧"],
+                "德國": ["德國豬手 🍖", "德國香腸 🌭", "酸菜 🥬"],
+                "瑞士": ["芝士火鍋 🧀", "薯餅 Rösti 🥔"]
+            },
+            "美洲": {
+                "美國": ["芝士漢堡 🍔", "燒烤肋骨 🍖", "熱狗 🌭", "水牛城雞翼 🍗"],
+                "墨西哥": ["塔可 Taco 🌮", "納喬奶酪玉米片 🥗", "墨西哥捲餅  burrito 🌯"],
+                "巴西": ["巴西燒烤 🥩", "黑豆燉肉 🍲"]
+            },
+            "大洋洲": {
+                "澳洲": ["澳洲肉批 🥧", "燒烤海鮮 🦐", "炸魚薯條 🍟"],
+                "新西蘭": ["毛利傳統窯烤 Hangi 🥘", "羊扒 🥩"]
+            },
+            "非洲/俄羅斯": {
+                "非洲": ["庫斯庫斯 Couscous 🍚", "摩洛哥燉鍋 Tagine 🥘"],
+                "俄羅斯": ["羅宋湯 🥣", "俄國餃子 🥟", "俄羅斯酸奶牛肉 🍛"]
             }
         };
 
-        let currentLevel = "root"; // root, continent, country
+        let currentLevel = "root";
         let selectedContinent = "";
         let selectedCountry = "";
 
@@ -116,50 +140,33 @@
         const pathEl = document.getElementById('path');
         const backBtn = document.getElementById('back-btn');
         const resultEl = document.getElementById('final-result');
+        const mapsLink = document.getElementById('maps-link');
 
         function render() {
             optionsEl.innerHTML = "";
             resultEl.style.display = "none";
+            mapsLink.style.display = "none"; // 換層時隱藏 Maps 按鈕
             optionsEl.style.display = "grid";
 
             if (currentLevel === "root") {
                 titleEl.innerText = "想食邊一洲？";
                 pathEl.innerText = "首頁";
                 backBtn.style.display = "none";
-                
-                Object.keys(menuData).forEach(continent => {
-                    createButton(continent, () => selectContinent(continent));
-                });
-                createRandomButton("隨機選一洲", () => {
-                    const keys = Object.keys(menuData);
-                    selectContinent(keys[Math.floor(Math.random() * keys.length)]);
-                });
-
+                Object.keys(menuData).forEach(c => createButton(c, () => selectContinent(c)));
             } else if (currentLevel === "continent") {
                 titleEl.innerText = `想去 ${selectedContinent} 邊度？`;
                 pathEl.innerText = `首頁 > ${selectedContinent}`;
                 backBtn.style.display = "block";
-
-                Object.keys(menuData[selectedContinent]).forEach(country => {
-                    createButton(country, () => selectCountry(country));
-                });
-                createRandomButton("隨機選國家", () => {
-                    const keys = Object.keys(menuData[selectedContinent]);
-                    selectCountry(keys[Math.floor(Math.random() * keys.length)]);
-                });
-
+                Object.keys(menuData[selectedContinent]).forEach(c => createButton(c, () => selectCountry(c)));
             } else if (currentLevel === "country") {
                 titleEl.innerText = `想食乜嘢 ${selectedCountry} 菜？`;
                 pathEl.innerText = `首頁 > ${selectedContinent} > ${selectedCountry}`;
-                
                 const foods = menuData[selectedContinent][selectedCountry];
-                foods.forEach(food => {
-                    createButton(food, () => showFinal(food));
-                });
-                createRandomButton("隨機選食物", () => {
-                    showFinal(foods[Math.floor(Math.random() * foods.length)]);
-                });
+                foods.forEach(f => createButton(f, () => showFinal(f)));
             }
+            
+            // 每一層都加上隨機按鈕
+            addRandomLogic();
         }
 
         function createButton(text, onClick) {
@@ -169,31 +176,51 @@
             optionsEl.appendChild(btn);
         }
 
-        function createRandomButton(text, onClick) {
+        function addRandomLogic() {
+            let btnText = "";
+            let action = null;
+
+            if (currentLevel === "root") {
+                btnText = "隨機選一洲";
+                action = () => {
+                    const keys = Object.keys(menuData);
+                    selectContinent(keys[Math.floor(Math.random() * keys.length)]);
+                };
+            } else if (currentLevel === "continent") {
+                btnText = "隨機選國家";
+                action = () => {
+                    const keys = Object.keys(menuData[selectedContinent]);
+                    selectCountry(keys[Math.floor(Math.random() * keys.length)]);
+                };
+            } else if (currentLevel === "country") {
+                btnText = "隨機選食物";
+                action = () => {
+                    const foods = menuData[selectedContinent][selectedCountry];
+                    showFinal(foods[Math.floor(Math.random() * foods.length)]);
+                };
+            }
+
             const btn = document.createElement('button');
-            btn.innerText = "🎲 " + text;
+            btn.innerText = "🎲 " + btnText;
             btn.className = "random-btn";
-            btn.onclick = onClick;
+            btn.onclick = action;
             optionsEl.appendChild(btn);
         }
 
-        function selectContinent(continent) {
-            selectedContinent = continent;
-            currentLevel = "continent";
-            render();
-        }
-
-        function selectCountry(country) {
-            selectedCountry = country;
-            currentLevel = "country";
-            render();
-        }
+        function selectContinent(c) { selectedContinent = c; currentLevel = "continent"; render(); }
+        function selectCountry(c) { selectedCountry = c; currentLevel = "country"; render(); }
 
         function showFinal(food) {
             titleEl.innerText = "今日就食：";
             resultEl.innerText = food;
             resultEl.style.display = "block";
             optionsEl.style.display = "none";
+
+            // 設定 Google Maps 連結
+            // 移除 Emoji 再搜尋會比較準確
+            const query = food.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim(); 
+            mapsLink.href = `https://www.google.com/maps/search/附近的${encodeURIComponent(query)}`;
+            mapsLink.style.display = "block"; // 顯示按鈕
         }
 
         function goBack() {
@@ -202,7 +229,6 @@
             render();
         }
 
-        // 初始化
         render();
     </script>
 </body>
