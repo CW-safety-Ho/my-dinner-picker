@@ -3,100 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>可愛晚餐決定器</title>
+    <title>層次晚餐決定器</title>
     <style>
-        /* 這裡是視覺設計 (CSS) */
         body {
-            background-color: #A2D2FF; /* 粉藍色背景 */
+            background-color: #A2D2FF;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; /* 黑體字 */
+            font-family: "Microsoft JhengHei", sans-serif;
         }
 
         .container {
             text-align: center;
             background: white;
-            padding: 50px;
+            padding: 30px;
             border-radius: 30px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            border: 5px solid #FFAFBD; /* 粉色邊框增加可愛感 */
+            border: 5px solid #FFAFBD;
+            width: 90%;
+            max-width: 500px;
         }
 
-        h1 {
-            color: #555;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+        .breadcrumb {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 15px;
         }
 
-        #result {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #FF6B6B; /* 鮮艷的顏色 */
-            height: 100px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
+        h1 { color: #555; font-size: 1.8rem; margin-bottom: 20px; }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
         }
 
         button {
             background-color: #FFC8DD;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.5rem;
+            padding: 12px;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #555;
-            border-radius: 50px;
+            border-radius: 15px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 5px #ff9bbd;
+            transition: all 0.2s;
+            box-shadow: 0 4px #ff9bbd;
         }
 
-        button:hover {
-            background-color: #ffafcc;
-            transform: translateY(-2px);
+        button:active { transform: translateY(3px); box-shadow: 0 0 #ff9bbd; }
+
+        .random-btn {
+            grid-column: span 2;
+            background-color: #BDE0FE;
+            box-shadow: 0 4px #8ecae6;
         }
 
-        button:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 #ff9bbd;
+        .back-btn {
+            background-color: #eee;
+            box-shadow: 0 4px #ccc;
+            margin-top: 20px;
+            grid-column: span 2;
         }
 
-        /* 點擊時的小動畫 */
-        .pop {
-            transform: scale(1.2);
+        #final-result {
+            font-size: 2.5rem;
+            color: #FF6B6B;
+            margin: 20px 0;
+            display: none;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>今晚食乜好？</h1>
-        <div id="result">？？？</div>
-        <button onclick="decideDinner()">隨機決定！</button>
+        <div class="breadcrumb" id="path">首頁</div>
+        <h1 id="title">想食邊一洲？</h1>
+        
+        <div id="final-result"></div>
+
+        <div id="options-container" class="button-grid">
+            </div>
+
+        <button class="back-btn" id="back-btn" style="display:none;" onclick="goBack()">⬅️ 返回上一層</button>
     </div>
 
     <script>
-        // 這裡是邏輯功能 (JavaScript)
-        function decideDinner() {
-            const foods = ['叉燒飯 🍛', '雲吞麵 🍜', '漢堡包 🍔', '壽司 🍣'];
-            const randomIndex = Math.floor(Math.random() * foods.length);
-            const resultElement = document.getElementById('result');
-            
-            // 更新文字
-            resultElement.innerText = foods[randomIndex];
-            
-            // 加入一點點彈跳動畫的感覺
-            resultElement.classList.remove('pop');
-            void resultElement.offsetWidth; // 觸發重繪
-            resultElement.classList.add('pop');
-        }
-    </script>
+        // 1. 這裡定義所有的資料 (數據庫)
+        const menuData = {
+            "亞洲": {
+                "日本": ["壽司 🍣", "拉麵 🍜", "天婦羅 🍤"],
+                "韓國": ["泡菜鍋 🍲", "韓式炸雞 🍗", "石鍋拌飯 🥘"],
+                "中港": ["叉燒飯 🍛", "雲吞麵 🍜", "點心 🥟"]
+            },
+            "歐洲": {
+                "意大利": ["薄餅 🍕", "意粉 🍝"],
+                "法國": ["法式長棍 🥖", "焗蝸牛 🐌"],
+                "英國": ["炸魚薯條 🐟🍟"]
+            }
+        };
 
+        let currentLevel = "root"; // root, continent, country
+        let selectedContinent = "";
+        let selectedCountry = "";
+
+        const titleEl = document.getElementById('title');
+        const optionsEl = document.getElementById('options-container');
+        const pathEl = document.getElementById('path');
+        const backBtn = document.getElementById('back-btn');
+        const resultEl = document.getElementById('final-result');
+
+        function render() {
+            optionsEl.innerHTML = "";
+            resultEl.style.display = "none";
+            optionsEl.style.display = "grid";
+
+            if (currentLevel === "root") {
+                titleEl.innerText = "想食邊一洲？";
+                pathEl.innerText = "首頁";
+                backBtn.style.display = "none";
+                
+                Object.keys(menuData).forEach(continent => {
+                    createButton(continent, () => selectContinent(continent));
+                });
+                createRandomButton("隨機選一洲", () => {
+                    const keys = Object.keys(menuData);
+                    selectContinent(keys[Math.floor(Math.random() * keys.length)]);
+                });
+
+            } else if (currentLevel === "continent") {
+                titleEl.innerText = `想去 ${selectedContinent} 邊度？`;
+                pathEl.innerText = `首頁 > ${selectedContinent}`;
+                backBtn.style.display = "block";
+
+                Object.keys(menuData[selectedContinent]).forEach(country => {
+                    createButton(country, () => selectCountry(country));
+                });
+                createRandomButton("隨機選國家", () => {
+                    const keys = Object.keys(menuData[selectedContinent]);
+                    selectCountry(keys[Math.floor(Math.random() * keys.length)]);
+                });
+
+            } else if (currentLevel === "country") {
+                titleEl.innerText = `想食乜嘢 ${selectedCountry} 菜？`;
+                pathEl.innerText = `首頁 > ${selectedContinent} > ${selectedCountry}`;
+                
+                const foods = menuData[selectedContinent][selectedCountry];
+                foods.forEach(food => {
+                    createButton(food, () => showFinal(food));
+                });
+                createRandomButton("隨機選食物", () => {
+                    showFinal(foods[Math.floor(Math.random() * foods.length)]);
+                });
+            }
+        }
+
+        function createButton(text, onClick) {
+            const btn = document.createElement('button');
+            btn.innerText = text;
+            btn.onclick = onClick;
+            optionsEl.appendChild(btn);
+        }
+
+        function createRandomButton(text, onClick) {
+            const btn = document.createElement('button');
+            btn.innerText = "🎲 " + text;
+            btn.className = "random-btn";
+            btn.onclick = onClick;
+            optionsEl.appendChild(btn);
+        }
+
+        function selectContinent(continent) {
+            selectedContinent = continent;
+            currentLevel = "continent";
+            render();
+        }
+
+        function selectCountry(country) {
+            selectedCountry = country;
+            currentLevel = "country";
+            render();
+        }
+
+        function showFinal(food) {
+            titleEl.innerText = "今日就食：";
+            resultEl.innerText = food;
+            resultEl.style.display = "block";
+            optionsEl.style.display = "none";
+        }
+
+        function goBack() {
+            if (currentLevel === "country") currentLevel = "continent";
+            else if (currentLevel === "continent") currentLevel = "root";
+            render();
+        }
+
+        // 初始化
+        render();
+    </script>
 </body>
 </html>
