@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可愛晚餐決定器</title>
+    <style>
+        /* 這裡是視覺設計 (CSS) */
+        body {
+            background-color: #A2D2FF; /* 粉藍色背景 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; /* 黑體字 */
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 5px solid #FFAFBD; /* 粉色邊框增加可愛感 */
+        }
+
+        h1 {
+            color: #555;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        #result {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #FF6B6B; /* 鮮艷的顏色 */
+            height: 100px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        button {
+            background-color: #FFC8DD;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #555;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px #ff9bbd;
+        }
+
+        button:hover {
+            background-color: #ffafcc;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 #ff9bbd;
+        }
+
+        /* 點擊時的小動畫 */
+        .pop {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>今晚食乜好？</h1>
+        <div id="result">？？？</div>
+        <button onclick="decideDinner()">隨機決定！</button>
+    </div>
+
+    <script>
+        // 這裡是邏輯功能 (JavaScript)
+        function decideDinner() {
+            const foods = ['叉燒飯 🍛', '雲吞麵 🍜', '漢堡包 🍔', '壽司 🍣'];
+            const randomIndex = Math.floor(Math.random() * foods.length);
+            const resultElement = document.getElementById('result');
+            
+            // 更新文字
+            resultElement.innerText = foods[randomIndex];
+            
+            // 加入一點點彈跳動畫的感覺
+            resultElement.classList.remove('pop');
+            void resultElement.offsetWidth; // 觸發重繪
+            resultElement.classList.add('pop');
+        }
+    </script>
+
+</body>
+</html>
