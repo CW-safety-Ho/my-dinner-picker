@@ -3,85 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全球美食預算決定器</title>
+    <title>美食導航員 - 先選想食乜</title>
     <style>
-        /* --- 啟動畫面 --- */
+        /* --- 啟動畫面與基礎樣式 --- */
         #splash {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: #FFAFBD;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #FFAFBD; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
             transition: opacity 0.8s ease, visibility 0.8s;
         }
         #splash.hidden { opacity: 0; visibility: hidden; }
         .splash-logo { font-size: 5rem; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-30px);} 60% {transform: translateY(-15px);} }
 
-        /* --- 主樣式 --- */
         body {
-            background-color: #A2D2FF;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: "Microsoft JhengHei", sans-serif;
+            background-color: #A2D2FF; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 100vh;
+            margin: 0; font-family: "Microsoft JhengHei", sans-serif;
         }
 
         .container {
-            text-align: center;
-            background: white;
-            padding: 30px;
-            border-radius: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            border: 5px solid #FFAFBD;
-            width: 90%;
-            max-width: 500px;
+            text-align: center; background: white; padding: 30px; border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 5px solid #FFAFBD;
+            width: 90%; max-width: 500px; min-height: 400px;
         }
 
         .breadcrumb { font-size: 0.9rem; color: #888; margin-bottom: 15px; }
-        h1 { color: #555; font-size: 1.6rem; margin-bottom: 20px; }
+        h1 { color: #555; font-size: 1.6rem; margin-bottom: 20px; min-height: 3rem; }
 
-        .button-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
+        .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
 
         button {
-            background-color: #FFC8DD;
-            border: none;
-            padding: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #555;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background-color: #FFC8DD; border: none; padding: 15px;
+            font-size: 1.1rem; font-weight: bold; color: #555;
+            border-radius: 15px; cursor: pointer; transition: all 0.2s;
             box-shadow: 0 4px #ff9bbd;
         }
         button:active { transform: translateY(3px); box-shadow: 0 0 #ff9bbd; }
 
-        .budget-btn { background-color: #cdb4db; box-shadow: 0 4px #b392ac; }
         .random-btn { background-color: #BDE0FE; box-shadow: 0 4px #8ecae6; grid-column: span 2; }
         .back-btn { background-color: #eee; box-shadow: 0 4px #ccc; margin-top: 20px; grid-column: span 2; }
         
         .maps-btn {
             background-color: #4285F4; color: white; box-shadow: 0 4px #3367D6;
             margin-top: 15px; text-decoration: none; display: none;
-            padding: 15px; border-radius: 15px; font-weight: bold; font-size: 1.1rem;
-        }
-
-        input[type="number"] {
-            width: 80%; padding: 10px; border-radius: 10px; border: 2px solid #FFAFBD;
-            font-size: 1.2rem; margin-bottom: 10px; text-align: center;
+            padding: 18px; border-radius: 15px; font-weight: bold; font-size: 1.2rem;
         }
 
         #final-result { font-size: 2.5rem; color: #FF6B6B; margin: 20px 0; display: none; }
@@ -90,57 +56,54 @@
 <body>
 
     <div id="splash">
-        <div class="splash-logo">💰</div>
-        <div class="splash-text">準備好預算未？</div>
+        <div class="splash-logo">🍽️</div>
+        <div class="splash-text">搵緊啱你心水嘅嘢食...</div>
     </div>
 
     <div class="container">
-        <div class="breadcrumb" id="path">預算設定</div>
-        <h1 id="title">今日預算係幾多？</h1>
+        <div class="breadcrumb" id="path">首頁</div>
+        <h1 id="title">今日想食邊一類？</h1>
         
         <div id="final-result"></div>
-        <a id="maps-link" class="maps-btn" target="_blank">📍 搵附近餐廳</a>
-
-        <div id="custom-budget-area" style="display: block;">
-            <input type="number" id="budget-input" placeholder="自訂最高金額 (HKD)">
-            <button onclick="setCustomBudget()" style="width: 85%; background-color: #BDE0FE; box-shadow: 0 4px #8ecae6;">確認自訂預算</button>
-            <div style="margin: 15px 0; color: #888;">── 或選擇範圍 ──</div>
-        </div>
+        <a id="maps-link" class="maps-btn" target="_blank">📍 睇吓邊度有得食</a>
 
         <div id="options-container" class="button-grid">
             </div>
 
-        <button class="back-btn" id="back-btn" style="display:none;" onclick="goBack()">⬅️ 返回</button>
+        <button class="back-btn" id="back-btn" style="display:none;" onclick="goBack()">⬅️ 返回重選</button>
     </div>
 
     <script>
-        // 核心數據：加入價格標籤 (此為示範數據)
-        const menuData = {
-            "亞洲": {
-                "中港": [
-                    {name: "叉燒飯 🍛", price: 60}, {name: "雲吞麵 🍜", price: 45}, 
-                    {name: "點心 🥟", price: 150}, {name: "北京填鴨 🦆", price: 450}
-                ],
-                "日本": [
-                    {name: "連鎖壽司 🍣", price: 120}, {name: "高級板前壽司 🍣", price: 800},
-                    {name: "拉麵 🍜", price: 90}, {name: "和牛燒肉 🥩", price: 700}
-                ]
+        // 核心數據：先分大類，再分預算
+        const foodDict = {
+            "日本菜 🇯🇵": {
+                "平價之選 ($100以下)": "拉麵/丼飯",
+                "中價享受 ($100-400)": "居酒屋/壽司",
+                "奢華體驗 ($800以上)": "Omakase/燒肉"
             },
-            "歐洲": {
-                "意大利": [
-                    {name: "薄餅 🍕", price: 140}, {name: "手工意粉 🍝", price: 180},
-                    {name: "松露燉飯 🍚", price: 350}
-                ],
-                "法國": [
-                    {name: "法式長棍 🥖", price: 30}, {name: "法式晚餐套餐 🍷", price: 950}
-                ]
+            "中菜 🥢": {
+                "街坊風味 ($60以下)": "茶餐廳/雲吞麵",
+                "得閒飲茶 ($100-200)": "酒樓點心",
+                "高級粵菜 ($500以上)": "中菜廳/片皮鴨"
+            },
+            "西餐 🍕": {
+                "輕食快餐 ($80以下)": "漢堡包/三文治",
+                "情調約會 ($200-500)": "意大利餐廳/牛扒",
+                "Fine Dining ($800以上)": "法式料理"
+            },
+            "東南亞 🥥": {
+                "惹味地道 ($100以下)": "泰式粉麵/海南雞",
+                "聚會必選 ($200-400)": "越南菜/星馬菜",
+                "特色風味 ($500以上)": "私房東南亞料理"
             }
         };
 
-        let currentLevel = "budget"; // budget, root, continent, country
-        let userMaxBudget = Infinity;
-        let selectedContinent = "";
-        let selectedCountry = "";
+        const regions = ["附近", "旺角/油麻地", "尖沙咀", "銅鑼灣", "觀塘", "沙田"];
+
+        let currentStep = "foodType"; // foodType, budget, region, result
+        let selectedFood = "";
+        let selectedBudget = "";
+        let selectedRegion = "";
 
         const titleEl = document.getElementById('title');
         const optionsEl = document.getElementById('options-container');
@@ -148,7 +111,6 @@
         const backBtn = document.getElementById('back-btn');
         const resultEl = document.getElementById('final-result');
         const mapsLink = document.getElementById('maps-link');
-        const customArea = document.getElementById('custom-budget-area');
 
         function render() {
             optionsEl.innerHTML = "";
@@ -156,63 +118,29 @@
             mapsLink.style.display = "none";
             optionsEl.style.display = "grid";
 
-            if (currentLevel === "budget") {
-                titleEl.innerText = "今日預算係幾多？";
-                pathEl.innerText = "預算設定";
+            if (currentStep === "foodType") {
+                titleEl.innerText = "今日想食邊一類？";
+                pathEl.innerText = "首頁";
                 backBtn.style.display = "none";
-                customArea.style.display = "block";
-                
-                const budgets = [
-                    {text: "$100-200", val: 200},
-                    {text: "$300-500", val: 500},
-                    {text: "$600-1000", val: 1000},
-                    {text: "不限預算", val: Infinity}
-                ];
-                budgets.forEach(b => {
-                    const btn = document.createElement('button');
-                    btn.innerText = b.text;
-                    btn.className = "budget-btn";
-                    btn.onclick = () => selectBudget(b.val);
-                    optionsEl.appendChild(btn);
+                Object.keys(foodDict).forEach(type => {
+                    createButton(type, () => { selectedFood = type; currentStep = "budget"; render(); });
                 });
 
-            } else if (currentLevel === "root") {
-                titleEl.innerText = "想食邊一洲？";
-                pathEl.innerText = `預算: $${userMaxBudget === Infinity ? '不限' : userMaxBudget} > 首頁`;
+            } else if (currentStep === "budget") {
+                titleEl.innerText = `${selectedFood}，預算係？`;
+                pathEl.innerText = selectedFood;
                 backBtn.style.display = "block";
-                customArea.style.display = "none";
-                
-                Object.keys(menuData).forEach(c => createButton(c, () => selectContinent(c)));
+                Object.keys(foodDict[selectedFood]).forEach(b => {
+                    createButton(b, () => { selectedBudget = b; currentStep = "region"; render(); });
+                });
 
-            } else if (currentLevel === "continent") {
-                titleEl.innerText = `想去 ${selectedContinent} 邊度？`;
-                pathEl.innerText = `預算 > ${selectedContinent}`;
-                Object.keys(menuData[selectedContinent]).forEach(c => createButton(c, () => selectCountry(c)));
-
-            } else if (currentLevel === "country") {
-                titleEl.innerText = `想食乜嘢 ${selectedCountry} 菜？`;
-                pathEl.innerText = `預算 > ${selectedContinent} > ${selectedCountry}`;
-                
-                // 這裡加入過濾邏輯
-                const allFoods = menuData[selectedContinent][selectedCountry];
-                const availableFoods = allFoods.filter(f => f.price <= userMaxBudget);
-
-                if (availableFoods.length === 0) {
-                    const tip = document.createElement('div');
-                    tip.innerHTML = "❌ 呢個預算喺呢度冇野食喔...<br>試吓返轉頭加預算！";
-                    optionsEl.appendChild(tip);
-                } else {
-                    availableFoods.forEach(f => createButton(`${f.name} ($${f.price})`, () => showFinal(f.name)));
-                }
+            } else if (currentStep === "region") {
+                titleEl.innerText = "想喺邊度食？";
+                pathEl.innerText = `${selectedFood} > ${selectedBudget}`;
+                regions.forEach(r => {
+                    createButton(r, () => { selectedRegion = r; showFinal(); });
+                });
             }
-        }
-
-        function selectBudget(val) { userMaxBudget = val; currentLevel = "root"; render(); }
-        
-        function setCustomBudget() {
-            const val = document.getElementById('budget-input').value;
-            if (val && val > 0) { selectBudget(parseInt(val)); }
-            else { alert("請輸入正確金額喔！"); }
         }
 
         function createButton(text, onClick) {
@@ -222,23 +150,24 @@
             optionsEl.appendChild(btn);
         }
 
-        function selectContinent(c) { selectedContinent = c; currentLevel = "continent"; render(); }
-        function selectCountry(c) { selectedCountry = c; currentLevel = "country"; render(); }
-
-        function showFinal(foodName) {
-            titleEl.innerText = "建議食：";
-            resultEl.innerText = foodName;
+        function showFinal() {
+            currentStep = "result";
+            const foodName = foodDict[selectedFood][selectedBudget];
+            titleEl.innerText = `建議方案：`;
+            resultEl.innerHTML = `<span style="font-size: 1.5rem; color: #888;">${selectedRegion}</span><br>${foodName}`;
             resultEl.style.display = "block";
             optionsEl.style.display = "none";
-            const query = foodName.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim(); 
-            mapsLink.href = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+
+            // 生成 Google Maps 連結： [地區] [食物]
+            const searchQuery = `${selectedRegion === "附近" ? "" : selectedRegion} ${foodName}`;
+            mapsLink.href = `https://www.google.com/maps/search/${encodeURIComponent(searchQuery)}`;
             mapsLink.style.display = "block";
         }
 
         function goBack() {
-            if (currentLevel === "root") currentLevel = "budget";
-            else if (currentLevel === "continent") currentLevel = "root";
-            else if (currentLevel === "country") currentLevel = "continent";
+            if (currentStep === "budget") currentStep = "foodType";
+            else if (currentStep === "region") currentStep = "budget";
+            else if (currentStep === "result") currentStep = "region";
             render();
         }
 
